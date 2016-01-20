@@ -56,6 +56,20 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             border-radius: 5px;
         }
+        .legend span {
+            width: 20px;
+            height: 20px;
+            float: left;
+            margin: 0 10px 4px 0;
+        }
+        .legend label {
+            font-size: 1.1em;
+        }
+        .legend label:after {
+            content: '';
+            display: block;
+            clear: both;
+        }       
         
         /* ADD YOUR ADDITIONAL STYLE RULES HERE */
         
@@ -89,6 +103,10 @@
         };
         
         var map = L.map('map', options);
+        
+        L.control.zoom({
+            position: 'topright'
+        }).addTo(map);
         
         var dataLayer,
             attribute = "OWNED_MORT",
