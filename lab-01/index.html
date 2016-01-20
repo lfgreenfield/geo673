@@ -193,7 +193,18 @@
                 var div = L.DomUtil.create('div', 'legend');
 //                class name = 'legend' =how to access in css
                 
-                div.innerHTML = "This is going to be legend info";
+                div.innerHTML = "<h3>" + attribute + " per " + norm + "</h3>";
+                
+//                REVIEW THIS
+                for (var i = 0; i < breaks.length-1; i++) {
+                    
+                    var color = getColor(breaks[i], breaks);
+                    
+                    div.innerHTML +=
+                        '<span style="background:' + color + '"></span> ' +
+            '<label>'+(breaks[i]*100).toLocaleString() + ' &mdash; ' + 
+            (breaks[i + 1]*100).toLocaleString() + '</label>';
+                }
                 
                 return div;
                 
