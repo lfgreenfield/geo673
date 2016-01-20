@@ -108,9 +108,9 @@
             position: 'topright'
         }).addTo(map);
         
-        var dataLayer,
-            attribute = "OWNED_MORT",
-            norm = "OWNER";
+        var dataLayer;
+        var attribute = "OWNED_MORT";
+        var norm = "OWNER";
         
         $.getJSON("ky_counties_housing.json", function(data) {
 //            the data loaded from the file is accessible here with this function scope
@@ -125,6 +125,10 @@
                     };
                 }
             }).addTo(map);
+            
+//            dataLayer.eachLayer(function(layer){
+//                console.log(layer.feature.properties);
+//            });
             
             drawMap();
             
@@ -163,18 +167,25 @@
                 var value = layer.feature.properties[attribute]/layer.feature.properties[norm];
                 values.push(value);     
             });
+            
+//            values.sort(function(a,b){
+//                return a - b;   
+//            });
 //            console.log(values);
             
 //            define similar clusters
             var clusters = ss.ckmeans(values,5);
             
+            console.log(clusters);
+            
 //            create an array of the lowest value within each cluster (using the 0)
             var breaks = clusters.map(function(cluster){
-                return cluster[0];
+               // return cluster[0];
+                return [cluster[0],cluster.pop()];
             });
             
-//            add the highest value for the legend to the already created array 'breaks'
-            breaks.push(clusters[clusters.length-1].pop());
+////            add the highest value for the legend to the already created array 'breaks'
+//            breaks.push(clusters[clusters.length-1].pop());
             
             console.log(breaks);
             
