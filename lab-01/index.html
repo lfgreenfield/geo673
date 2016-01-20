@@ -3,7 +3,7 @@
 
 <head>
     <meta charset=utf-8 />
-    <title>Lab 01 Template</title>
+    <title>Lab 01 Greenfield</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
@@ -114,18 +114,64 @@
 //        }
         
         function drawMap() {
+            
             var breaks = getClassBreaks();
+            
+            dataLayer.eachLayer(function(layer) {
+                layer.setStyle({
+                    fillColor: getColor(layer.feature.properties[attribute]/layer.feature.properties[norm], breaks)
+                });
+            });
+            
         }
         
         function getClassBreaks() {
 //            code to determine range and establish classification breaks
-//            first, loop through dataLayer, find owner_mort and push into array 
+ 
+//            create empty array for storing values
             var values = [];
+            
+//            loop through all counties, values.push = normalized value pushed into array
             dataLayer.eachLayer(function(layer) {
                 var value = layer.feature.properties[attribute]/layer.feature.properties[norm];
-                values.push(value);
+                values.push(value);     
             });
-            console.log(values);
+//            console.log(values);
+            
+//            define similar clusters
+            var clusters = ss.ckmeans(values,5);
+            
+//            create an array of the lowest value within each cluster (using the 0)
+            var breaks = clusters.map(function(cluster){
+                return cluster[0];
+            });
+            
+//            add the highest value for the legend to the already created array 'breaks'
+            breaks.push(clusters[clusters.length-1].pop());
+            
+            console.log(breaks);
+            
+            return breaks;
+            
+        }
+        
+        function getColor (d,breaks) {
+//            breaks[1] = second value of the breaks array 
+            if(d < breaks[1]) {
+                return '#f1eef6';
+            }
+            else if(d < breaks[2]) {
+                return '#bdc9e1';
+            }
+            else if(d < breaks[3]) {
+                return '#74a9cf';
+            }
+            else if(d < breaks[4]) {
+                return '#2b8cbe';
+            }
+            else if(d <= breaks[5]) {
+                return '#045a8d';
+            }
         }
         
         
