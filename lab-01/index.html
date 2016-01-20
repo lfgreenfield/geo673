@@ -104,10 +104,27 @@
             
         });
         
+//       first drawMap where colored one layer 
+//        function drawMap() {
+//            dataLayer.eachLayer(function(layer) {
+////                    console.log(layer.feature.properties);
+//                layer.setStyle( { fillColor: 'yellow' } );
+//            });
+//        }
+        
         function drawMap() {
+            var breaks = getClassBreaks();
+        }
+        
+        function getClassBreaks() {
+//            code to determine range and establish classification breaks
+//            first, loop through dataLayer, find owner_mort and push into array 
+            var values = [];
             dataLayer.eachLayer(function(layer) {
-                layer.setStyle( { fillColor: 'yellow' } );
+                var value = layer.feature.properties[attribute]/layer.feature.properties[norm];
+                values.push(value);
             });
+            console.log(values);
         }
         
         
