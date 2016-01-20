@@ -49,6 +49,13 @@
             font-size: 1em;
             color: #001323;
         }
+        .legend {
+            padding: 6px 8px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
         
         /* ADD YOUR ADDITIONAL STYLE RULES HERE */
         
@@ -123,6 +130,8 @@
                 });
             });
             
+            drawLegend(breaks);
+            
         }
         
         function getClassBreaks() {
@@ -172,6 +181,26 @@
             else if(d <= breaks[5]) {
                 return '#045a8d';
             }
+        }
+        
+        function drawLegend(breaks) {
+           
+            var legend = L.control({position: 'topleft'});
+            
+//            what does this do?
+            legend.onAdd = function () {
+                
+                var div = L.DomUtil.create('div', 'legend');
+//                class name = 'legend' =how to access in css
+                
+                div.innerHTML = "This is going to be legend info";
+                
+                return div;
+                
+            };
+            
+            legend.addTo(map);
+            
         }
         
         
