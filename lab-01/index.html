@@ -82,10 +82,14 @@
         
         var map = L.map('map', options);
         
+        var dataLayer,
+            attribute = "OWNED_MORT",
+            norm = "OWNER";
+        
         $.getJSON("ky_counties_housing.json", function(data) {
 //            the data loaded from the file is accessible here with this function scope
 //            console.log(data);
-            L.geoJson(data, {
+            dataLayer = L.geoJson(data, {
                 style: function(feature) {
                     return {
                         color: '#dddddd',
@@ -95,7 +99,18 @@
                     };
                 }
             }).addTo(map);
+            
+            drawMap();
+            
         });
+        
+        function drawMap() {
+            dataLayer.eachLayer(function(layer) {
+                layer.setStyle( { fillColor: 'yellow' } );
+            });
+        }
+        
+        
 
     </script>
     
