@@ -109,8 +109,8 @@
         }).addTo(map);
         
         var dataLayer;
-        var attribute = "OWNED_MORT";
-        var norm = "OWNER";
+        var attribute = "RENTER";
+        var norm = "TOTAL";
         
         $.getJSON("ky_counties_housing.json", function(data) {
 //            the data loaded from the file is accessible here with this function scope
@@ -126,31 +126,50 @@
                 }
             }).addTo(map);
             
-//            dataLayer.eachLayer(function(layer){
-//                console.log(layer.feature.properties);
-//            });
-            
             drawMap();
             
         });
-        
-//       first drawMap where colored one layer 
-//        function drawMap() {
-//            dataLayer.eachLayer(function(layer) {
-////                    console.log(layer.feature.properties);
-//                layer.setStyle( { fillColor: 'yellow' } );
-//            });
-//        }
         
         function drawMap() {
             
             var breaks = getClassBreaks();
             
             dataLayer.eachLayer(function(layer) {
+                
+                var props = layer.feature.properties;
+                
+                    console.log(props);
+                
                 layer.setStyle({
-                    fillColor: getColor(layer.feature.properties[attribute]/layer.feature.properties[norm], breaks)
+                    fillColor: getColor(props[attribute]/props[norm], breaks)
                 });
+                
+                layer.on('mouseover', function() {
+                    
+                    layer.setStyle({
+                        color: '#dddddd',
+                        weight: 5,
+                        opacity: 0.8
+                    }).bringToFront;
+                    
+                });
+                
+                layer.on('mouseout', function () {
+                    
+                    layer.setStyle({
+                        weight: 1,
+                        fillColor: getColor(props[attribute]/props[norm], breaks),
+                        color: '#dddddd'
+                    });
+                    
+                });
+                
+                var content = "<b>"+props.NAME+" County</b><br>"+"percent "+attribute.toLowerCase()+": "+((props[attribute]/props[norm])*100).toLocaleString()
+            
+                layer.bindPopup(content).addTo(map);
+                
             });
+            
             
             drawLegend(breaks);
             
@@ -168,26 +187,26 @@
                 values.push(value);     
             });
             
-//            values.sort(function(a,b){
-//                return a - b;   
-//            });
+            values.sort(function(a,b){
+                return a - b;   
+            });
 //            console.log(values);
             
 //            define similar clusters
             var clusters = ss.ckmeans(values,5);
-            
+//            
             console.log(clusters);
             
 //            create an array of the lowest value within each cluster (using the 0)
             var breaks = clusters.map(function(cluster){
-               // return cluster[0];
-                return [cluster[0],cluster.pop()];
+                return cluster[0];
+//                return [cluster[0],cluster.pop()];
             });
             
-////            add the highest value for the legend to the already created array 'breaks'
-//            breaks.push(clusters[clusters.length-1].pop());
+//            add the highest value for the legend to the already created array 'breaks'
+            breaks.push(clusters[clusters.length-1].pop());
             
-            console.log(breaks);
+//            console.log(breaks);
             
             return breaks;
             
@@ -222,7 +241,7 @@
                 var div = L.DomUtil.create('div', 'legend');
 //                class name = 'legend' =how to access in css
                 
-                div.innerHTML = "<h3>" + attribute + " per " + norm + "</h3>";
+                div.innerHTML = "<h3>" + attribute.toLowerCase() + " per " + norm.toLowerCase() + "</h3>";
                 
 //                REVIEW THIS
                 for (var i = 0; i < breaks.length-1; i++) {
