@@ -98,7 +98,7 @@
 
     <div id='ui-controls'>
         <label>Choose a data attribute:</label>
-        <select name="occupied">
+        <select id="occupied">
             <option value="OWNED_MORT" selected>owned with mortgage</option>
             <option value="OWNED_FREE">owned free and clear</option>
             <option value="RENTER">rented</option>
@@ -141,9 +141,9 @@
                 }          
             }).addTo(map);
             
-            drawMap();
-            
-            buildUI();
+            drawLegend();
+            drawMap();            
+            buildUI();            
               
         });
         
@@ -164,7 +164,8 @@
                                 ((props[attribute]/props[norm])*100).toLocaleString()+"%");  
             });
             
-            drawLegend(breaks);
+//            drawLegend(breaks);
+            updateLegend(breaks);
         }
         
         function getClassBreaks() {
@@ -201,32 +202,40 @@
             }
         }
         
-        function drawLegend(breaks) {
+        function drawLegend() {
             
             var legend = L.control({position: 'topleft'});
 
-            legend.onAdd = function () {
+            legend.onAdd = function(map) {
                 
                 var div = L.DomUtil.create('div', 'legend');
-                
-                div.innerHTML = "<h3>" + attribute + " per " + norm + "</h3>"; 
+                               
+                return div;               
+                    
+            };
+
+            legend.addTo(map);
+        }
+        
+        function updateLegend(breaks) {
+            
+//            go over this, changing div.innerHTML
+            
+//            selects already created legend
+            var legend = $('.legend');
+            
+//            use jQuery method (.html) to populate legend with name of data attribute
+            legend.html = ("<h3>" + attribute + " per " + norm + "</h3>"); 
 
                 for (var i = 0; i <= breaks.length-1; i++) {
                     
                     var color = getColor(breaks[i][0], breaks);
                     
-                    div.innerHTML +=
+                    legend.append(
                         '<span style="background:' + color + '"></span> ' +
                         '<label>'+(breaks[i][0]*100).toLocaleString() + ' &mdash; ' + 
-                        (breaks[i][1]*100).toLocaleString() + '</label>';
+                        (breaks[i][1]*100).toLocaleString() + '</label>');
                 }
-               
-                return div;
-                
-                    
-            };
-
-            legend.addTo(map);
         }
         
         function buildUI() {
@@ -236,7 +245,7 @@
 //            2. add event listener for when user changes Selection
 //            3. make call again to redraw map
             
-//            why change id to name?
+//            originally put id and it worked but then lesson text changed to name?
             
             $('select[id="occupied"]').change(function() {
                 
@@ -245,10 +254,7 @@
                 
                 attribute = $(this).val();
                 
-                drawMap();
-
-                
-                
+                drawMap();                 
             
             });
             
