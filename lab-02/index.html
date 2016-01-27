@@ -98,7 +98,7 @@
 
     <div id='ui-controls'>
         <label>Choose a data attribute:</label>
-        <select id="occupied">
+        <select name="occupied">
             <option value="OWNED_MORT" selected>owned with mortgage</option>
             <option value="OWNED_FREE">owned free and clear</option>
             <option value="RENTER">rented</option>
@@ -142,6 +142,8 @@
             }).addTo(map);
             
             drawMap();
+            
+            buildUI();
               
         });
         
@@ -226,6 +228,32 @@
 
             legend.addTo(map);
         }
+        
+        function buildUI() {
+            
+//            UI code here
+//            1. select UI controls div and execute
+//            2. add event listener for when user changes Selection
+//            3. make call again to redraw map
+            
+//            why change id to name?
+            
+            $('select[id="occupied"]').change(function() {
+                
+//                return what was selected
+//                console.log($(this).val());
+                
+                attribute = $(this).val();
+                
+                drawMap();
+
+                
+                
+            
+            });
+            
+        }
+
 
     </script>
     
