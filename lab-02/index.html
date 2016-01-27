@@ -225,7 +225,7 @@
             var legend = $('.legend');
             
 //            use jQuery method (.html) to populate legend with name of data attribute
-            legend.html = ("<h3>" + attribute + " per " + norm + "</h3>"); 
+            legend.html("<h3>" + attribute + " per " + norm + "</h3>"); 
 
                 for (var i = 0; i <= breaks.length-1; i++) {
                     
@@ -236,6 +236,8 @@
                         '<label>'+(breaks[i][0]*100).toLocaleString() + ' &mdash; ' + 
                         (breaks[i][1]*100).toLocaleString() + '</label>');
                 }
+            
+            
         }
         
         function buildUI() {
