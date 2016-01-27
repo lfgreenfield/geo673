@@ -86,6 +86,14 @@
             font-size: 1em;
             margin-right: 5px;
         }
+        .info {
+            padding: 6px 8px;
+            font-size: 1em;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            text-align: right;   
+        }
         
     </style>
 </head>
@@ -142,8 +150,9 @@
             }).addTo(map);
             
             drawLegend();
-            drawMap();            
-            buildUI();            
+            drawMap(); 
+            buildUI(); 
+            drawInfo();
               
         });
         
@@ -166,6 +175,23 @@
             
 //            drawLegend(breaks);
             updateLegend(breaks);
+        }
+        
+        function drawInfo() {
+            
+//            1. create empty window
+//            2. update content when user clicks/hovers on county
+            var info = L.control({position: 'topright'});
+            
+            info.onAdd = function(map) {
+            
+                var div = L.DomUtil.create('div', 'info');
+                
+                return div;
+                
+            }
+            info.addTo(map);
+            
         }
         
         function getClassBreaks() {
