@@ -94,6 +94,9 @@
             border-radius: 5px;
             text-align: right;   
         }
+        .info h3 {
+            margin: 0;   
+        }
         
     </style>
 </head>
@@ -197,7 +200,14 @@
                 
             }
             info.addTo(map);
-            
+
+            dataLayer.on('mouseover', function() {
+                $(".info").show();
+            });
+            dataLayer.on('mouseout', function() {
+                $(".info").hide();    
+            });
+
         }
         
         function updateInfo(layer) {
@@ -267,7 +277,7 @@
             
 //            go over this, changing div.innerHTML
             
-//            selects already created legend
+//            selects already created legend; using JQuery = have to use JQuery methods below, too
             var legend = $('.legend');
             
 //            use jQuery method (.html) to populate legend with name of data attribute
@@ -292,8 +302,6 @@
 //            1. select UI controls div and execute
 //            2. add event listener for when user changes Selection
 //            3. make call again to redraw map
-            
-//            originally put id and it worked but then lesson text changed to name?
             
             $('select[id="occupied"]').change(function() {
                 
