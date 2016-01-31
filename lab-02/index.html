@@ -183,8 +183,8 @@
                 });
                 
                 layer.bindPopup("<b>"+props["NAME"]+" County</b></br>" +
-                                attribute + ": " +
-                                ((props[attribute]/props[norm])*100).toLocaleString()+"%"); 
+                                labels[attribute] + ": " +
+                                ((props[attribute]/props[norm])*100).toLocaleString()); 
         
             });
             
@@ -290,7 +290,7 @@
             var legend = $('.legend');
             
 //            use jQuery method (.html) to populate legend with name of data attribute
-            legend.html("<h3>" + attribute + " per " + norm + "</h3>"); 
+            legend.html("<h3>" + labels[attribute] + "</h3>"); 
 
                 for (var i = 0; i <= breaks.length-1; i++) {
                     
