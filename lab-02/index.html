@@ -138,6 +138,13 @@
         var dataLayer,
             attribute = "OWNED_MORT",
             norm = "OCCUPIED";
+
+        var labels = {
+            "OCCUPIED": "occupied units",
+            "OWNED_MORT": "% occupied housing units owned with mortgage",
+            "OWNED_FREE": "% occupied housing units owned free and clear",
+            "RENTER": "% occupied housing units rented"   
+        }
         
         $.getJSON("ky_counties_housing.json", function(data) {
             
@@ -190,6 +197,7 @@
             
 //            1. create empty window
 //            2. update content when user clicks/hovers on county
+//            3.show/hide when mouse on/off
             var info = L.control({position: 'topright'});
             
             info.onAdd = function(map) {
@@ -199,6 +207,7 @@
                 return div;
                 
             }
+            
             info.addTo(map);
 
             dataLayer.on('mouseover', function() {
