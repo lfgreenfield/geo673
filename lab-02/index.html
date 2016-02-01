@@ -106,6 +106,7 @@
         <h1>Vacancy in Kentucky</h1>
     </header>
 
+<!--    make div (container) for drop down control, create id 'occupied' which will be selected later-->
     <div id='ui-controls'>
         <label>Choose a data attribute:</label>
         <select id="occupied">
@@ -130,20 +131,25 @@
         }
         var map = L.map('map', options);
         
+//        add Leaflet zoom control, position in top right corner
         map.addControl( L.control.zoom({ position: 'topright' }));
         
+//        create global variables: dataLayer, attribute, and norm
         var dataLayer,
             attribute = "VACANT",
             norm = "TOTAL";
 
+//        create global var 'labels' to add readability to the info panel and popups
         var labels = {
             "VACANT": "% vacant housing units",
             "VACANT_FOR": "% vacant units for rent",
             "VACANT_FO2": "% vacant units for sale", 
         }
         
+//        use jQuery function to bring in the json data
         $.getJSON("ky_counties_housing.json", function(data) {
             
+//            use Leaflet function to style data, add to map; assign 'dataLayer' to hold the data
             dataLayer = L.geoJson(data, {
                  style: function(feature) {
                     return {
@@ -155,6 +161,7 @@
                 }          
             }).addTo(map);
             
+//            when data is added to map, call upon these four functions to run
             drawLegend();
             drawMap(); 
             buildUI(); 
@@ -162,39 +169,67 @@
               
         });
         
+//        function to use json data (referenced with 'dataLayer') to call getClassBreaks, stylize with user interaction; create popup
         function drawMap() {
             
+//            call function getClassBreaks, assign to variable 'breaks'
             var breaks = getClassBreaks();
 
             dataLayer.eachLayer(function(layer) {
                 
+//                shorthand variable to access properties of data to colorize and build popup
                 var props = layer.feature.properties;
                 
+//                for every layer, colorize by sending its normalization AND breaks (calculated with getClassBreaks) to getColor function
                 layer.setStyle({
                     fillColor: getColor(props[attribute]/
                                         props[norm], breaks)
                 });
+                
+//                on user mouseover, update info and create focus on specific layer by bringing to front and stylizing yellow border
                 layer.on('mouseover', function() {
+                    
                     updateInfo(this);
+                    
+                    layer.bringToFront();
+                    
+                    layer.setStyle ({
+                        color: 'yellow',
+                        weight: 4,
+                        opacity: 1
+                    });
+                    
                 });
                 
+//                on user mouseout, return styles to original settings
+                layer.on('mouseout', function() {
+                    
+                    layer.setStyle ({
+                        color: '#dddddd',
+                        weight: 2
+                    });
+                
+                });
+                
+//                create popup for each layer using selected attribute and 'labels' text
                 layer.bindPopup("<b>"+props["NAME"]+" County</b></br>" +
                                 labels[attribute] + ": " +
                                 ((props[attribute]/props[norm])*100).toLocaleString()); 
         
             });
             
+//            send 'breaks' to be used in the updateLegend function
             updateLegend(breaks);
 
         }
         
+//        function to draw the info panel and determine user interaction
         function drawInfo() {
             
-//            1. create empty window
-//            2. update content when user clicks/hovers on county
-//            3.show/hide when mouse on/off
+//            create empty window, topright corner
             var info = L.control({position: 'topright'});
             
+//            when panel added to map, stylize according to CSS class 'info'
             info.onAdd = function(map) {
             
                 var div = L.DomUtil.create('div', 'info');
@@ -203,17 +238,22 @@
                 
             }
             
+//            add info panel to map
             info.addTo(map);
 
+//            jQuery method to select (show) the panel on user mouseover
             dataLayer.on('mouseover', function() {
                 $(".info").show();
             });
+            
+//            jQuery method to select (hide) the panel on user mouseout
             dataLayer.on('mouseout', function() {
                 $(".info").hide();    
             });
 
         }
         
+//        function to update the info panel with layer-specific data
         function updateInfo(layer) {
         
             var props = layer.feature.properties;
@@ -223,29 +263,37 @@
                     "# vacant units for rent: <b>"+ props["VACANT_FOR"]+"</b><br>"+
                     "# vacant units for sale: <b>"+ props["VACANT_FO2"]+"</b>"
 
+//            use jQuery method to assign CSS class 'info' and html method (???)
             $(".info").html(html);
             
         }
         
+//        function to determine class breaks, called in drawMap function
         function getClassBreaks() {
             
+//            create array 'values'
             var values = [];
             
+//            for each layer, create normalized value and push into array 'values'
             dataLayer.eachLayer(function(layer) {
                 var value = layer.feature.properties[attribute]/layer.feature.properties[norm];
                 values.push(value);   
             }); 
            
+//            use simple statistics ck means to divide array 'values' into 5 groups/arrays, make 'clusters' which is an array of arrays
             var clusters = ss.ckmeans(values, 5);
 
+//            assign highest and lowest value from each of 5 arrays within 'clusters' array to the var 'breaks' 
             var breaks = clusters.map(function(cluster){
                 return [cluster[0],cluster.pop()];   
             });
 
+//            return 'breaks' with highest and lowest values from each of 5 groups to functions where getClassBreaks/'breaks' are called
             return breaks;
             
         }   
         
+//        function called in drawMap, use each layer's normalized value + breaks array to colorize each layer 
         function getColor(d, breaks) {
             
             if(d <= breaks[0][1]) {
@@ -261,6 +309,7 @@
             }
         }
         
+//        function to use leaflet control method to place legend window top left, assign to class 'legend'
         function drawLegend() {
             
             var legend = L.control({position: 'topleft'});
@@ -276,11 +325,10 @@
             legend.addTo(map);
         }
         
+//        function to populate legend according to user selection, class breaks, and colors
         function updateLegend(breaks) {
             
-//            go over this, changing div.innerHTML
-            
-//            selects already created legend; using JQuery = have to use JQuery methods below, too
+//            selects already created 'legend'; using JQuery, therefore have to use JQuery methods below, too
             var legend = $('.legend');
             
 //            use jQuery method (.html) to populate legend with name of data attribute
@@ -294,25 +342,19 @@
                         '<span style="background:' + color + '"></span> ' +
                         '<label>'+(breaks[i][0]*100).toLocaleString() + ' &mdash; ' + 
                         (breaks[i][1]*100).toLocaleString() + '</label>');
-                }
-            
+                }            
             
         }
         
+//        function to create drop down selection tool
         function buildUI() {
             
-//            UI code here
-//            1. select UI controls div and execute
-//            2. add event listener for when user changes Selection
-//            3. make call again to redraw map
-            
+//            when user selects certain id, return it as 'attribute'
             $('select[id="occupied"]').change(function() {
-                
-//                return what was selected
-//                console.log($(this).val());
-                
+                                
                 attribute = $(this).val();
                 
+//                make call to drawMap with selected attribute
                 drawMap();                 
             
             });
