@@ -65,6 +65,7 @@ OR
     margin: 10px auto;
 }
 ```
+> Include "load map tiles and add to map" instruction
 
 These techniques are good when we want to fix the map within specific dimensions within an overall page layout. But, suppose we want our map to fill the entire browser window? In one sense this is beneficial, because we don't necessarily need to make guesses about the user's screen resolution or browser size. The map will simply expand to the full extent. The implication for the design of the interface and the rest of the page layout, then, is place other elements on top of the map itself.
 
