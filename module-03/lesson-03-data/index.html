@@ -73,7 +73,6 @@
         var map = L.map('map', options);
         
         //load map tiles and add to map
-        //INCLUDE IN LESSON TEXT
         var tiles = L.tileLayer('http://{s}.tile.stamen.com/toner-background/{z}/{x}/{y}.{ext}', {
             attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             subdomains: 'abcd',
@@ -87,6 +86,18 @@
         // declare global variables
 
         // AJAX requests to load data files
+        //just load geometries
+        $.getJSON("us-states.json", function(states) {
+            
+            console.log(states);
+            
+        })
+        .fail(function {
+              
+              //if the data file fails to load...
+              console.log("An error has occured!!");
+              
+        });
  
         // function to process/bind data
 
