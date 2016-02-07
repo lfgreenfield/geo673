@@ -83,6 +83,7 @@
         });
         map.addLayer(tiles);
         
+        
                 
         // declare global variables
 
@@ -105,6 +106,21 @@
                 }
                 
             });
+            dataLayer = L.geoJson(states, {
+                 style: function(feature) {
+                    return {
+                            color: '#dddddd',
+                            weight: 2,
+                            fillOpacity: 1,
+                            fillColor: '#1f78b4'
+                        };
+                }          
+            }).addTo(map);
+            
+//            when data is added to map, call upon these four functions to run
+//            drawLegend();
+//            drawMap(); 
+//            buildUI();              
             
         });
  
@@ -114,6 +130,7 @@
             // 1. loop through geoJSON data's features
             // 2. for each state, loop through the CSV data
             // 3. if FIPS code for state matches code for csv, add csv data to json feature's properties
+            //geometry: STATEFP, data/csv: STATE_FIP
             
             for (var state in states.features) {
             
@@ -122,23 +139,92 @@
             
                 //looping through data(csv)
                 for(var d in data.data) {
-                    console.log(props.STATEFP, data.data[d].STATE_FIP);
+//                    console.log(props.STATEFP, data.data[d].STATE_FIP);
+                    //if the state FIP from geometry = the FIP in csv, equate the geometry properties to the info in the csv
+                    if(props.STATEFP == data.data[d].STATE_FIP) {
+                        states.features[state].properties = data.data[d];
+                        break;
+                    }                    
                 }
             }
+            
+            //NOTE: good in md to have the explanation and code THEN the gif!! bc gif reviews the process
+            console.log(states);
         
         }
 
         // function to draw the map
+        function drawMap() {
+            
+//             call function getClassBreaks, assign to variable 'breaks'
+//            var breaks = getClassBreaks();
+
+            dataLayer.eachLayer(function(layer) {
+                
+//                shorthand variable to access properties of data to colorize and build popup
+                var props = layer.feature.properties;
+                
+//                for every layer, colorize by sending its normalization AND breaks (calculated with getClassBreaks) to getColor function
+//                layer.setStyle({
+//                    fillColor: getColor(props[attribute]/
+//                                        props[norm], breaks)
+//                });
+                
+//                on user mouseover, update info and create focus on specific layer by bringing to front and stylizing yellow border
+                layer.on('mouseover', function() {
+                    
+                    layer.bringToFront();
+                    
+                    layer.setStyle ({
+                        color: 'yellow',
+                        weight: 4,
+                        opacity: 1
+                    });
+                    
+                });
+                
+//                on user mouseout, return styles to original settings
+                layer.on('mouseout', function() {
+                    
+                    layer.setStyle ({
+                        color: '#dddddd',
+                        weight: 2
+                    });
+                
+                });
+                
+//                create popup for each layer using selected attribute and 'labels' text
+//                layer.bindPopup("<b>"+props["NAME"]+" County</b></br>" +
+//                                labels[attribute] + ": " +
+//                                ((props[attribute]/props[norm])*100).toLocaleString()); 
+        
+            });
+            
+//            send 'breaks' to be used in the updateLegend function
+//            updateLegend(breaks);
+
+            
+        }
         
         // function to update the map
+        function updateMap() {
+        }
         
-        // function get the class breaks   
+        // function get the class breaks  
+        function getClassBreaks() {
+        }
         
         // function to get the color value
+        function getColor() {
+        }
                 
         // function to draw the legend
+        function drawLegend() {
+        }
         
         // function to update the legend
+        function updateLegend() {
+        }
 
         // function to create the range slider
 
