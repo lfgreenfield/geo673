@@ -86,19 +86,21 @@
                 
         // declare global variables
 
-        // AJAX requests to load data files, parse together
+        // AJAX requests to load data files
         $.getJSON("us-states.json", function(states) {
             
-            //parse csv to state geometries
+            //parse csv to make json
             Papa.parse('states-unemployment.csv', {
                 
                 download: true,
                 header: true,
                 complete: function(data) {
                     
-                    console.log(data);
+                    //both data and states accessible here
+//                    console.log(data);
                     
-                    console.log(states);
+                    //call function to bind states and data together
+                    processData(states, data);
                 
                 }
                 
@@ -107,6 +109,24 @@
         });
  
         // function to process/bind data
+        function processData(states, data) {
+            
+            // 1. loop through geoJSON data's features
+            // 2. for each state, loop through the CSV data
+            // 3. if FIPS code for state matches code for csv, add csv data to json feature's properties
+            
+            for (var state in states.features) {
+            
+                //props = scrolling through states geometries 
+                var props = states.features[state].properties;
+            
+                //looping through data(csv)
+                for(var d in data.data) {
+                    console.log(props.STATEFP, data.data[d].STATE_FIP);
+                }
+            }
+        
+        }
 
         // function to draw the map
         
