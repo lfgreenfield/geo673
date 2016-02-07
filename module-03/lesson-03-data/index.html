@@ -9,6 +9,7 @@
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.0/simple_statistics.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
 
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
@@ -85,18 +86,24 @@
                 
         // declare global variables
 
-        // AJAX requests to load data files
-        //just load geometries
+        // AJAX requests to load data files, parse together
         $.getJSON("us-states.json", function(states) {
             
-            console.log(states);
+            //parse csv to state geometries
+            Papa.parse('states-unemployment.csv', {
+                
+                download: true,
+                header: true,
+                complete: function(data) {
+                    
+                    console.log(data);
+                    
+                    console.log(states);
+                
+                }
+                
+            });
             
-        })
-        .fail(function {
-              
-              //if the data file fails to load...
-              console.log("An error has occured!!");
-              
         });
  
         // function to process/bind data
