@@ -148,7 +148,8 @@
             
             drawLegend();
             drawMap();
-            buildUI();
+            getClassBreaks();
+//            buildUI();
             
         });
  
@@ -177,12 +178,54 @@
             }
             
             //NOTE: good in md to have the explanation and code THEN the gif!! bc gif reviews the process
-            console.log(states);
+//            console.log(states);
         
         }
 
         // function to draw the map
         function drawMap() {
+                      
+//            call function getClassBreaks, assign to variable 'breaks'
+//            var breaks = getClassBreaks();
+            console.log(dataLayer);
+            
+            dataLayer.eachLayer(function(layer) {
+                
+                var props = layer.feature.properties;
+                
+//                layer.setStyle({
+//                    fillColor: getColor(props[attribute]/
+//                                        props[norm], breaks)
+//                });
+                
+                layer.on('mouseover', function() {
+                    
+                    layer.bringToFront();
+                    
+                    layer.setStyle ({
+                        color: 'yellow',
+                        weight: 4,
+                        opacity: 1
+                    });
+                    
+                });
+                
+                layer.on('mouseout', function() {
+                    
+                    layer.setStyle ({
+                        color: '#dddddd',
+                        weight: 2
+                    });
+                
+                });
+//                
+//                layer.bindPopup("<b>"+props["NAME"]+" County</b></br>" +
+//                                labels[attribute] + ": " +
+//                                ((props[attribute]/props[norm])*100).toLocaleString()); 
+        
+            });
+            
+            updateLegend(breaks);
         }
         
         // function to update the map
@@ -191,6 +234,21 @@
         
         // function get the class breaks  
         function getClassBreaks() {
+
+            var values = [];
+//
+////            dataLayer.eachLayer(function(layer) {
+////                var value = layer.feature.properties[attribute]/layer.feature.properties[norm];
+////                values.push(value);   
+////            }); 
+//           
+//            var clusters = ss.ckmeans(values, 5);
+//
+//            var breaks = clusters.map(function(cluster){
+//                return [cluster[0],cluster.pop()];   
+//            });
+//
+//            return breaks;
         }
         
         // function to get the color value
