@@ -113,7 +113,8 @@
         
                 
         // declare global variables
-        var datalayer;
+        var dataLayer,
+            attribute = "2001";
         
 
         // AJAX requests to load data files
@@ -135,21 +136,6 @@
                 }
                 
             });
-            dataLayer = L.geoJson(states, {
-                 style: function(feature) {
-                    return {
-                            color: '#dddddd',
-                            weight: 2,
-                            fillOpacity: 1,
-                            fillColor: '#1f78b4'
-                        };
-                }          
-            }).addTo(map);
-            
-            drawLegend();
-            drawMap();
-            getClassBreaks();
-//            buildUI();
             
         });
  
@@ -177,6 +163,11 @@
                 }
             }
             
+            drawMap();
+            drawLegend();
+            getClassBreaks();
+//            buildUI();
+            
             //NOTE: good in md to have the explanation and code THEN the gif!! bc gif reviews the process
 //            console.log(states);
         
@@ -184,19 +175,27 @@
 
         // function to draw the map
         function drawMap() {
+            
+            dataLayer = L.geoJson(states, {
+                 style: function(feature) {
+                    return {
+                            color: '#dddddd',
+                            weight: 2,
+                            fillOpacity: 1,
+                            fillColor: '#1f78b4'
+                        };
+                }          
+            }).addTo(map);
                       
-//            call function getClassBreaks, assign to variable 'breaks'
+////            call function getClassBreaks, assign to variable 'breaks'
 //            var breaks = getClassBreaks();
+            
             console.log(dataLayer);
             
             dataLayer.eachLayer(function(layer) {
-                
-                var props = layer.feature.properties;
-                
-//                layer.setStyle({
-//                    fillColor: getColor(props[attribute]/
-//                                        props[norm], breaks)
-//                });
+//                
+//                var props = layer.feature.properties;
+//                console.log(layer.feature);
                 
                 layer.on('mouseover', function() {
                     
@@ -218,15 +217,9 @@
                     });
                 
                 });
-//                
-//                layer.bindPopup("<b>"+props["NAME"]+" County</b></br>" +
-//                                labels[attribute] + ": " +
-//                                ((props[attribute]/props[norm])*100).toLocaleString()); 
-        
-            });
             
             updateLegend(breaks);
-        }
+        });
         
         // function to update the map
         function updateMap() {
@@ -236,19 +229,19 @@
         function getClassBreaks() {
 
             var values = [];
-//
-////            dataLayer.eachLayer(function(layer) {
-////                var value = layer.feature.properties[attribute]/layer.feature.properties[norm];
-////                values.push(value);   
-////            }); 
-//           
-//            var clusters = ss.ckmeans(values, 5);
-//
-//            var breaks = clusters.map(function(cluster){
-//                return [cluster[0],cluster.pop()];   
-//            });
-//
-//            return breaks;
+
+            dataLayer.eachLayer(function(layer) {
+                var value = layer.feature.properties[attribute];
+                values.push(value);   
+            }); 
+           
+            var clusters = ss.ckmeans(values, 5);
+
+            var breaks = clusters.map(function(cluster){
+                return [cluster[0],cluster.pop()];   
+            });
+
+            return breaks;
         }
         
         // function to get the color value
