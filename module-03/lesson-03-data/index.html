@@ -51,7 +51,34 @@
         p {
             font-size: 1em;
             color: #001323;
-        }   
+        } 
+        .legend {
+            padding: 6px 8px;
+            font-size: 1em;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        .legend h3 {
+            font-size: 1.1em;
+            font-weight: normal;
+            color: #001323;
+            margin: 0 0 10px 0;
+        }
+        .legend span {
+            width: 20px;
+            height: 20px;
+            float: left;
+            margin: 0 10px 4px 0;
+        }
+        .legend label {
+            font-size: 1.1em;
+        }
+        .legend label:after {
+            content: '';
+            display: block;
+            clear: both;
+        }
     </style>
 </head>
 
@@ -86,6 +113,8 @@
         
                 
         // declare global variables
+        var datalayer;
+        
 
         // AJAX requests to load data files
         $.getJSON("us-states.json", function(states) {
@@ -117,10 +146,9 @@
                 }          
             }).addTo(map);
             
-//            when data is added to map, call upon these four functions to run
-//            drawLegend();
-//            drawMap(); 
-//            buildUI();              
+            drawLegend();
+            drawMap();
+            buildUI();
             
         });
  
@@ -155,55 +183,6 @@
 
         // function to draw the map
         function drawMap() {
-            
-//             call function getClassBreaks, assign to variable 'breaks'
-//            var breaks = getClassBreaks();
-
-            dataLayer.eachLayer(function(layer) {
-                
-//                shorthand variable to access properties of data to colorize and build popup
-                var props = layer.feature.properties;
-                
-//                for every layer, colorize by sending its normalization AND breaks (calculated with getClassBreaks) to getColor function
-//                layer.setStyle({
-//                    fillColor: getColor(props[attribute]/
-//                                        props[norm], breaks)
-//                });
-                
-//                on user mouseover, update info and create focus on specific layer by bringing to front and stylizing yellow border
-                layer.on('mouseover', function() {
-                    
-                    layer.bringToFront();
-                    
-                    layer.setStyle ({
-                        color: 'yellow',
-                        weight: 4,
-                        opacity: 1
-                    });
-                    
-                });
-                
-//                on user mouseout, return styles to original settings
-                layer.on('mouseout', function() {
-                    
-                    layer.setStyle ({
-                        color: '#dddddd',
-                        weight: 2
-                    });
-                
-                });
-                
-//                create popup for each layer using selected attribute and 'labels' text
-//                layer.bindPopup("<b>"+props["NAME"]+" County</b></br>" +
-//                                labels[attribute] + ": " +
-//                                ((props[attribute]/props[norm])*100).toLocaleString()); 
-        
-            });
-            
-//            send 'breaks' to be used in the updateLegend function
-//            updateLegend(breaks);
-
-            
         }
         
         // function to update the map
@@ -220,6 +199,15 @@
                 
         // function to draw the legend
         function drawLegend() {
+               var legend = L.control({position: 'topright'});
+            legend.onAdd = function(map) {
+                
+                var div = L.DomUtil.create('div', 'legend');
+                               
+                return div;               
+                    
+            };
+            legend.addTo(map);
         }
         
         // function to update the legend
