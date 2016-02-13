@@ -102,6 +102,17 @@
         #ui-controls .max {
             float: right;
         }
+        .info {
+            padding: 6px 8px;
+            font-size: 1em;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            text-align: right;   
+        }
+        .info h3 {
+            margin: 0;   
+        }
   
     </style>
 </head>
@@ -121,7 +132,7 @@
          // instantiate the Leaflet map
         var options = {
             center: [37.8, -85.8],
-            zoom: 7.4,
+            zoom: 5,
             dragging: false,
             zoomControl: false
         }
@@ -131,18 +142,19 @@
         //load map tiles and add to map
         
         
-//        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
-//  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-//            subdomains: 'abcd',
-//            ext: 'png'
-//        });
-//        map.addLayer(tiles);
+        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            subdomains: 'abcd',
+            ext: 'png'
+        });
+        map.addLayer(tiles);
         
         
                 
         // declare global variables
         var dataLayer,
-            attribute = "2000";       
+            attribute = "2000";     
+        
         
 
         // AJAX requests to load data files
@@ -170,7 +182,7 @@
         // function to process/bind data
         function processData(counties, data) {
             
-            console.log(counties);
+         
             
             for (var county in counties.features) {
 
@@ -196,13 +208,14 @@
             drawLegend();
             drawMap(counties);
             buildUISlider();
-            
+            drawInfo();
         } // end processData
         
         
 //
 //         function to draw the map
         function drawMap(counties) {
+            
             
             dataLayer = L.geoJson(counties, {
                  style: function(feature) {
@@ -228,6 +241,20 @@
                 layer.setStyle({
                    fillColor: getColor(Number(layer.feature.properties[attribute]), breaks)
                 });    
+                layer.on('mouseover', function() {
+                    
+                    updateInfo(this);
+                    
+                    layer.bringToFront();
+                });            
+                layer.on('mouseout', function() {
+                    
+                    layer.setStyle ({
+                        color: '#dddddd',
+                        weight: 2
+                    });
+                
+                });
                 
             });
             
@@ -265,13 +292,12 @@
             dataLayer.eachLayer(function(layer) {
                 var value = layer.feature.properties[attribute];
                 values.push(Number(value));
-                console.log(value);
+               
             }); 
            
            //break values array down into 5 equal groups
             var breaks = ss.quantile(values, [0, 0.2, 0.4, 0.6, 0.8, 1]);
-            
-            console.log(breaks);
+
             
             return breaks;
    
@@ -336,14 +362,61 @@
                 
                     attribute = $(this).val();
                     updateMap();
+                
                 });
             
             
         }
         
-        
+        function drawInfo() {
+            
+//            create empty window, topright corner
+            var info = L.control({position: 'topright'});
+            
+//            when panel added to map, stylize according to CSS class 'info'
+            info.onAdd = function(map) {
+            
+                var div = L.DomUtil.create('div', 'info');
+                
+                return div;                
+                
+            }           
+            
+            info.addTo(map);
 
-        // function to create the range slider
+            dataLayer.on('mouseover', function() {
+                $(".info").show();
+            });
+            
+            dataLayer.on('mouseout', function() {
+                $(".info").hide();    
+            });
+            
+        } //end drawInfo
+        
+//        function to update the info panel with layer-specific data
+        function updateInfo(layer) {
+        
+            var props = layer.feature.properties;
+            var html = "<h3>"+props['NAME']+" County % Unemployment</h3>" + 
+                    "2000: <b>"+ props["2000"]+"</b><br>"+
+                    "2001: <b>"+ props["2001"]+"</b><br>"+
+                    "2002: <b>"+ props["2002"]+"</b>"+
+                    "2003: <b>"+ props["2002"]+"</b>"+
+                    "2004: <b>"+ props["2002"]+"</b>"+
+                    "2005: <b>"+ props["2002"]+"</b>"+
+                    "2006: <b>"+ props["2002"]+"</b>"+
+                    "2007: <b>"+ props["2002"]+"</b>"+
+                    "2008: <b>"+ props["2002"]+"</b>"+
+                    "2009: <b>"+ props["2002"]+"</b>"+
+                    "2010: <b>"+ props["2002"]+"</b>"+
+                    "2011: <b>"+ props["2002"]+"</b>"+
+                    "2012: <b>"+ props["2002"]+"</b>"+
+                    "2013: <b>"+ props["2002"]+"</b>"+
+
+            $(".info").html(html);
+            
+        }
 
     </script>
     
