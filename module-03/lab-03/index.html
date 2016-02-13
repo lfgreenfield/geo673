@@ -118,7 +118,7 @@
 </head>
 
 <body>
-    <h1>Unemployment Rates: 2001 - 2013</h1>
+    <h1>Kentucky Unemployment Rates: 2000 - 2013</h1>
     <div id='map'></div>
     <div id="ui-controls">
        <label><span class="min">2001</span><span class="max">2013</span>
@@ -241,11 +241,18 @@
                 layer.setStyle({
                    fillColor: getColor(Number(layer.feature.properties[attribute]), breaks)
                 });    
+                
                 layer.on('mouseover', function() {
                     
                     updateInfo(this);
                     
                     layer.bringToFront();
+                    
+                    layer.setStyle({
+                        color: 'yellow',
+                        weight: 2
+                    });
+                    
                 });            
                 layer.on('mouseout', function() {
                     
@@ -396,23 +403,24 @@
         
 //        function to update the info panel with layer-specific data
         function updateInfo(layer) {
-        
+           
             var props = layer.feature.properties;
+            
             var html = "<h3>"+props['NAME']+" County % Unemployment</h3>" + 
                     "2000: <b>"+ props["2000"]+"</b><br>"+
                     "2001: <b>"+ props["2001"]+"</b><br>"+
-                    "2002: <b>"+ props["2002"]+"</b>"+
-                    "2003: <b>"+ props["2002"]+"</b>"+
-                    "2004: <b>"+ props["2002"]+"</b>"+
-                    "2005: <b>"+ props["2002"]+"</b>"+
-                    "2006: <b>"+ props["2002"]+"</b>"+
-                    "2007: <b>"+ props["2002"]+"</b>"+
-                    "2008: <b>"+ props["2002"]+"</b>"+
-                    "2009: <b>"+ props["2002"]+"</b>"+
-                    "2010: <b>"+ props["2002"]+"</b>"+
-                    "2011: <b>"+ props["2002"]+"</b>"+
-                    "2012: <b>"+ props["2002"]+"</b>"+
-                    "2013: <b>"+ props["2002"]+"</b>"+
+                    "2002: <b>"+ props["2002"]+"</b><br>"+
+                    "2003: <b>"+ props["2002"]+"</b><br>"+
+                    "2004: <b>"+ props["2002"]+"</b><br>"+
+                    "2005: <b>"+ props["2002"]+"</b><br>"+
+                    "2006: <b>"+ props["2002"]+"</b><br>"+
+                    "2007: <b>"+ props["2002"]+"</b><br>"+
+                    "2008: <b>"+ props["2002"]+"</b><br>"+
+                    "2009: <b>"+ props["2002"]+"</b><br>"+
+                    "2010: <b>"+ props["2002"]+"</b><br>"+
+                    "2011: <b>"+ props["2002"]+"</b><br>"+
+                    "2012: <b>"+ props["2002"]+"</b><br>"+
+                    "2013: <b>"+ props["2002"]+"</b><br>"
 
             $(".info").html(html);
             
