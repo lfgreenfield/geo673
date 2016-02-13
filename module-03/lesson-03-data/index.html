@@ -83,13 +83,36 @@
             float: left;
             margin-right: 10px;
         }
+        #ui-controls {
+            width: 176px;   
+            padding: 8px 15px 8px 15px;
+            background: rgba(75,75,75,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px; 
+            color: whitesmoke;
+        }
+        .year-slider {
+            width: 100%;
+        }
+        #ui-controls .min {
+            float: left;   
+        }
+        #ui-controls .max {
+            float: right;
+        }
   
     </style>
 </head>
 
 <body>
-    <h1>Map Title Goes Here</h1>
+    <h1>Unemployment Rates: 2001 - 2013</h1>
     <div id='map'></div>
+    <div id="ui-controls">
+       <label><span class="min">2001</span><span class="max">2013</span>
+            <input type="range" min = "2001", max= "2013", 
+                   value = "2001", step= "1", class="year-slider">
+       </label>
+    </div>
     
     <script>
         
@@ -106,8 +129,8 @@
         var map = L.map('map', options);
         
         //load map tiles and add to map
-        var tiles = L.tileLayer('http://{s}.tile.stamen.com/toner-background/{z}/{x}/{y}.{ext}', {
-            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
             subdomains: 'abcd',
             minZoom: 4,
             maxZoom: 6,
@@ -171,6 +194,7 @@
             
             drawLegend();
             drawMap(states);
+            buildUISlider();
             
         } // end processData
         
@@ -213,19 +237,19 @@
         function getColor(attribute, breaks) {
             
             if(attribute <= breaks[1]){
-                return '#edf8fb'
+                return '#fee391'
             }
             else if(attribute <= breaks[2]){
-                return '#b3cde3'
+                return '#fec44f'
             }
             else if(attribute <= breaks[3]){
-                return '#8c96c6'
+                return '#fe9929'
             }
             else if(attribute <= breaks[4]){
-                return '#8856a7'
+                return '#d95f0e'
             }
             else if(attribute <= breaks[5]){
-                return '#810f7c'
+                return '#993404'
             }
             
             
@@ -280,6 +304,36 @@
             }
             
             legend.append("</ul>");
+            
+        }
+        
+        function buildUISlider() {
+            
+            var sliderControl = L.control({ position: 'bottomleft'} );
+
+            sliderControl.onAdd = function(map) {
+
+                var slider = L.DomUtil.get("ui-controls");
+
+                    L.DomEvent.addListener(slider, 'mousedown', function(e) { 
+
+                        L.DomEvent.stopPropagation(e); 
+
+                    });
+
+                return slider;
+            }
+
+            sliderControl.addTo(map);
+            
+            // select the form element
+            $(".year-slider")
+                // attached event listener
+                .on("input change", function() {
+                
+                    attribute = $(this).val();
+                    updateMap();
+                });
             
             
         }
