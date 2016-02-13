@@ -140,11 +140,11 @@
             norm = "TOTAL";
 
 //        create global var 'labels' to add readability to the info panel and popups
-        var labels = {
-            "VACANT": "% vacant housing units",
-            "VACANT_FOR": "% vacant units for rent",
-            "VACANT_FO2": "% vacant units for sale", 
-        }
+//        var labels = {
+//            "UNEMPLOYED": "% vacant housing units",
+//            "VACANT_FOR": "% vacant units for rent",
+//            "VACANT_FO2": "% vacant units for sale", 
+//        }
         
 //        use jQuery function to bring in the json data
         $.getJSON("ky_counties_housing.json", function(data) {
@@ -218,9 +218,9 @@
         
             });
             
-//            send 'breaks' to be used in the updateLegend function
             updateLegend(breaks);
 
+            console.log(breaks);
         }
         
 //        function to draw the info panel and determine user interaction

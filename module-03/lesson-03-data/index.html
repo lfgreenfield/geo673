@@ -54,31 +54,36 @@
         } 
         .legend {
             padding: 6px 8px;
+            padding: 6px 8px;
             font-size: 1em;
-            background: rgba(255,255,255,0.8);
+            background: rgba(75,75,75,0.8);
+            color: whitesmoke;
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             border-radius: 5px;
+            width: 160px;
         }
         .legend h3 {
             font-size: 1.1em;
-            font-weight: normal;
-            color: #001323;
-            margin: 0 0 10px 0;
+            font-weight: bold;
+            line-height: 1em;
+            color: whitesmoke;
+            margin: 0;
+        }
+        .legend ul {
+            list-style-type: none;   
+            padding: 0;
+            margin: 12px 4px 0;
+        }
+        .legend li { 
+            height: 22px;
         }
         .legend span {
-            width: 20px;
+            width: 30px;
             height: 20px;
             float: left;
-            margin: 0 10px 4px 0;
+            margin-right: 10px;
         }
-        .legend label {
-            font-size: 1.1em;
-        }
-        .legend label:after {
-            content: '';
-            display: block;
-            clear: both;
-        }
+  
     </style>
 </head>
 
@@ -114,7 +119,7 @@
                 
         // declare global variables
         var dataLayer,
-            attribute = "2001";
+            attribute = "2001";       
         
 
         // AJAX requests to load data files
@@ -142,39 +147,37 @@
         // function to process/bind data
         function processData(states, data) {
             
-            // 1. loop through geoJSON data's features
-            // 2. for each state, loop through the CSV data
-            // 3. if FIPS code for state matches code for csv, add csv data to json feature's properties
-            //geometry: STATEFP, data/csv: STATE_FIP
+            console.log(data);
+            
+            console.log(states);
             
             for (var state in states.features) {
-            
-                //props = scrolling through states geometries 
-                var props = states.features[state].properties;
-            
-                //looping through data(csv)
+
+                var props = states.features[state].properties;                
+
                 for(var d in data.data) {
-//                    console.log(props.STATEFP, data.data[d].STATE_FIP);
-                    //if the state FIP from geometry = the FIP in csv, equate the geometry properties to the info in the csv
-                    if(props.STATEFP == data.data[d].STATE_FIP) {
+                    
+                    if (props.STATEFP === data.data[d].STATE_FIP) {
+//                        console.log(props.STATEFP, 'match');
                         states.features[state].properties = data.data[d];
                         break;
-                    }                    
+                        
+                    }
+
                 }
+                
+                
             }
             
-            drawMap();
             drawLegend();
-            getClassBreaks();
-//            buildUI();
+            drawMap(states);
             
-            //NOTE: good in md to have the explanation and code THEN the gif!! bc gif reviews the process
-//            console.log(states);
+        } // end processData
         
-        }
-
-        // function to draw the map
-        function drawMap() {
+        
+//
+//         function to draw the map
+        function drawMap(states) {
             
             dataLayer = L.geoJson(states, {
                  style: function(feature) {
@@ -184,73 +187,73 @@
                             fillOpacity: 1,
                             fillColor: '#1f78b4'
                         };
-                }          
+                 }
             }).addTo(map);
-                      
-////            call function getClassBreaks, assign to variable 'breaks'
-//            var breaks = getClassBreaks();
             
-            console.log(dataLayer);
+            updateMap();
             
-            dataLayer.eachLayer(function(layer) {
-//                
-//                var props = layer.feature.properties;
-//                console.log(layer.feature);
-                
-                layer.on('mouseover', function() {
-                    
-                    layer.bringToFront();
-                    
-                    layer.setStyle ({
-                        color: 'yellow',
-                        weight: 4,
-                        opacity: 1
-                    });
-                    
-                });
-                
-                layer.on('mouseout', function() {
-                    
-                    layer.setStyle ({
-                        color: '#dddddd',
-                        weight: 2
-                    });
-                
-                });
-            
-            updateLegend(breaks);
-        });
-        
-        // function to update the map
-        function updateMap() {
         }
         
-        // function get the class breaks  
+        function updateMap() {
+            
+            var breaks = getClassBreaks();
+            
+            dataLayer.eachLayer(function(layer) {
+                
+                layer.setStyle({
+                   fillColor: getColor(Number(layer.feature.properties[attribute]), breaks)
+                });    
+                
+            });
+            
+            updateLegend(breaks);              
+            
+        }
+        
+        function getColor(attribute, breaks) {
+            
+            if(attribute <= breaks[1]){
+                return '#edf8fb'
+            }
+            else if(attribute <= breaks[2]){
+                return '#b3cde3'
+            }
+            else if(attribute <= breaks[3]){
+                return '#8c96c6'
+            }
+            else if(attribute <= breaks[4]){
+                return '#8856a7'
+            }
+            else if(attribute <= breaks[5]){
+                return '#810f7c'
+            }
+            
+            
+        }
+        
         function getClassBreaks() {
-
+            
             var values = [];
 
             dataLayer.eachLayer(function(layer) {
                 var value = layer.feature.properties[attribute];
-                values.push(value);   
+                values.push(Number(value));   
             }); 
            
-            var clusters = ss.ckmeans(values, 5);
-
-            var breaks = clusters.map(function(cluster){
-                return [cluster[0],cluster.pop()];   
-            });
-
+           //break values array down into 5 equal groups
+            var breaks = ss.quantile(values, [0, 0.2, 0.4, 0.6, 0.8, 1]);
+            
+            console.log(breaks);
+            
             return breaks;
+   
         }
-        
-        // function to get the color value
-        function getColor() {
-        }
-                
+                        
         // function to draw the legend
         function drawLegend() {
-               var legend = L.control({position: 'topright'});
+            
+            var legend = L.control({position: 'topright'});
+            
             legend.onAdd = function(map) {
                 
                 var div = L.DomUtil.create('div', 'legend');
@@ -261,9 +264,27 @@
             legend.addTo(map);
         }
         
-        // function to update the legend
-        function updateLegend() {
+        function updateLegend(breaks) {
+            
+            var legend = $('.legend').html("<h3>% Unemployment: " + attribute + "</h3><ul>");
+            
+            for (var i = 0; i < breaks.length-1; i++) {
+                
+                var color = getColor(breaks[i + 1], breaks);
+                
+                $('.legend ul').append('<li><span style="background:' + color + '"></span> ' +
+                    breaks[i] + ' &mdash; ' + 
+                    breaks[i + 1] + '</li>');
+                
+                console.log("hello?")
+            }
+            
+            legend.append("</ul>");
+            
+            
         }
+        
+        
 
         // function to create the range slider
 
