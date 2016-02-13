@@ -10,8 +10,8 @@
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.0/simple_statistics.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
-    <script src="//cdn.jsdelivr.net/leaflet.esri/2.0.0-beta.7/esri-leaflet.js"></script>
-
+    
+    
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
    
@@ -105,10 +105,11 @@
         .info {
             padding: 6px 8px;
             font-size: 1em;
-            background: rgba(255,255,255,0.8);
+            background: rgba(75,75,75,0.8);
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             border-radius: 5px;
-            text-align: right;   
+            text-align: left;  
+            color: whitesmoke;
         }
         .info h3 {
             margin: 0;   
@@ -121,7 +122,7 @@
     <h1>Kentucky Unemployment Rates: 2000 - 2013</h1>
     <div id='map'></div>
     <div id="ui-controls">
-       <label><span class="min">2001</span><span class="max">2013</span>
+       <label><span class="min">2000</span><span class="max">2013</span>
             <input type="range" min = "2000", max= "2013", 
                    value = "2000", step= "1", class="year-slider">
        </label>
@@ -132,7 +133,7 @@
          // instantiate the Leaflet map
         var options = {
             center: [37.8, -85.8],
-            zoom: 5,
+            zoom: 7.4,
             dragging: false,
             zoomControl: false
         }
@@ -142,12 +143,12 @@
         //load map tiles and add to map
         
         
-        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
-  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-            subdomains: 'abcd',
-            ext: 'png'
-        });
-        map.addLayer(tiles);
+//        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
+//  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+//            subdomains: 'abcd',
+//            ext: 'png'
+//        });
+//        map.addLayer(tiles);
         
         
                 
@@ -249,8 +250,9 @@
                     layer.bringToFront();
                     
                     layer.setStyle({
-                        color: 'yellow',
-                        weight: 2
+                        color: '#dddddd',
+                        weight: 5,
+                        opacity: 1
                     });
                     
                 });            
@@ -406,7 +408,7 @@
            
             var props = layer.feature.properties;
             
-            var html = "<h3>"+props['NAME']+" County % Unemployment</h3>" + 
+            var html = "<h3>"+props['NAME']+" County"+"<br>"+ "% Unemployment</h3>" + 
                     "2000: <b>"+ props["2000"]+"</b><br>"+
                     "2001: <b>"+ props["2001"]+"</b><br>"+
                     "2002: <b>"+ props["2002"]+"</b><br>"+
