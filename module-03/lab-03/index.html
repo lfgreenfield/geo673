@@ -10,9 +10,11 @@
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.0/simple_statistics.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
+    <script src="//cdn.jsdelivr.net/leaflet.esri/2.0.0-beta.7/esri-leaflet.js"></script>
 
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+   
 
     <style>
         body {
@@ -109,8 +111,8 @@
     <div id='map'></div>
     <div id="ui-controls">
        <label><span class="min">2001</span><span class="max">2013</span>
-            <input type="range" min = "2001", max= "2013", 
-                   value = "2001", step= "1", class="year-slider">
+            <input type="range" min = "2000", max= "2013", 
+                   value = "2000", step= "1", class="year-slider">
        </label>
     </div>
     
@@ -118,38 +120,36 @@
         
          // instantiate the Leaflet map
         var options = {
-            center: [38.2, -94],
-            zoom: 4,
-            minZoom: 4,
-            maxZoom: 6,
-            dragging: true,
-            zoomControl: true
+            center: [37.8, -85.8],
+            zoom: 7.4,
+            dragging: false,
+            zoomControl: false
         }
         
         var map = L.map('map', options);
         
         //load map tiles and add to map
-        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
-  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-            subdomains: 'abcd',
-            minZoom: 4,
-            maxZoom: 6,
-            ext: 'png'
-        });
-        map.addLayer(tiles);
+        
+        
+//        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
+//  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+//            subdomains: 'abcd',
+//            ext: 'png'
+//        });
+//        map.addLayer(tiles);
         
         
                 
         // declare global variables
         var dataLayer,
-            attribute = "2001";       
+            attribute = "2000";       
         
 
         // AJAX requests to load data files
-        $.getJSON("us-states.json", function(states) {
+        $.getJSON("ky-counties.json", function(counties) {
             
             //parse csv to make json
-            Papa.parse('states-unemployment.csv', {
+            Papa.parse('ky-unemployment-data.csv', {
                 
                 download: true,
                 header: true,
@@ -159,7 +159,7 @@
 //                    console.log(data);
                     
                     //call function to bind states and data together
-                    processData(states, data);
+                    processData(counties, data);
                 
                 }
                 
@@ -168,21 +168,22 @@
         });
  
         // function to process/bind data
-        function processData(states, data) {
+        function processData(counties, data) {
             
-            console.log(data);
+            console.log(counties);
             
-            console.log(states);
-            
-            for (var state in states.features) {
+            for (var county in counties.features) {
 
-                var props = states.features[state].properties;                
+                var props = counties.features[county].properties;  
+                
+//                console.log(props);
 
                 for(var d in data.data) {
                     
-                    if (props.STATEFP === data.data[d].STATE_FIP) {
-//                        console.log(props.STATEFP, 'match');
-                        states.features[state].properties = data.data[d];
+                    if (props.COUNTY_FIP === data.data[d].CNTY) {
+                        
+                       counties.features[county].properties = data.data[d];
+                        
                         break;
                         
                     }
@@ -193,7 +194,7 @@
             }
             
             drawLegend();
-            drawMap(states);
+            drawMap(counties);
             buildUISlider();
             
         } // end processData
@@ -201,9 +202,9 @@
         
 //
 //         function to draw the map
-        function drawMap(states) {
+        function drawMap(counties) {
             
-            dataLayer = L.geoJson(states, {
+            dataLayer = L.geoJson(counties, {
                  style: function(feature) {
                     return {
                             color: '#dddddd',
@@ -258,10 +259,13 @@
         function getClassBreaks() {
             
             var values = [];
-
+            
+//            console.log(dataLayer);
+            
             dataLayer.eachLayer(function(layer) {
                 var value = layer.feature.properties[attribute];
-                values.push(Number(value));   
+                values.push(Number(value));
+                console.log(value);
             }); 
            
            //break values array down into 5 equal groups
@@ -299,8 +303,7 @@
                 $('.legend ul').append('<li><span style="background:' + color + '"></span> ' +
                     breaks[i] + ' &mdash; ' + 
                     breaks[i + 1] + '</li>');
-                
-                console.log("hello?")
+        
             }
             
             legend.append("</ul>");
