@@ -3,7 +3,7 @@
 
 <head>
     <meta charset=utf-8 />
-    <title>Lab 03 Starter file</title>
+    <title>Lab 03 Greenfield</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -147,8 +147,7 @@
             ext: 'png'
         });
         map.addLayer(tiles);       
-        
-                
+                        
         // declare global variables
         var dataLayer,
             attribute = "2000";            
@@ -164,16 +163,12 @@
                 header: true,
                 complete: function(data) {
                     
-                    //both data and states accessible here
-//                    console.log(data);
-                    
-                    //call function to bind states and data together
+                    //call function to bind counties and data together
                     processData(counties, data);
                 
                 }
                 
             });
-            console.log(counties);
             
         });
  
@@ -184,8 +179,6 @@
             for (var county in counties.features) {
 
                 var props = counties.features[county].properties;  
-                
-//                console.log(props);
 
                 for(var d in data.data) {
                     
@@ -196,10 +189,7 @@
                         break;
                         
                     }
-
-                }
-                
-                
+                }               
             }
             
             drawLegend();
@@ -208,8 +198,6 @@
             drawInfo();
         } // end processData
         
-        
-//
 //         function to draw the map
         function drawMap(counties) {
             
@@ -227,7 +215,7 @@
             
             updateMap();
             
-        }
+        } //end drawMap
         
         function updateMap() {
             
