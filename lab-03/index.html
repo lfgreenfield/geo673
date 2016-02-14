@@ -9,8 +9,7 @@
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.0/simple_statistics.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>    
     
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
@@ -133,29 +132,26 @@
          // instantiate the Leaflet map
         var options = {
             center: [37.8, -85.8],
-            zoom: 7.4,
+            zoom: 7,
             dragging: false,
             zoomControl: false
         }
         
         var map = L.map('map', options);
-        
+    
         //load map tiles and add to map
-        
-        
-//        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
-//  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-//            subdomains: 'abcd',
-//            ext: 'png'
-//        });
-//        map.addLayer(tiles);
-        
+   
+        var tiles =L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',{
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            subdomains: 'abcd',
+            ext: 'png'
+        });
+        map.addLayer(tiles);       
         
                 
         // declare global variables
         var dataLayer,
-            attribute = "2000";     
-        
+            attribute = "2000";            
         
 
         // AJAX requests to load data files
@@ -177,12 +173,12 @@
                 }
                 
             });
+            console.log(counties);
             
         });
  
         // function to process/bind data
         function processData(counties, data) {
-            
          
             
             for (var county in counties.features) {
@@ -336,8 +332,8 @@
                 var color = getColor(breaks[i + 1], breaks);
                 
                 $('.legend ul').append('<li><span style="background:' + color + '"></span> ' +
-                    breaks[i] + ' &mdash; ' + 
-                    breaks[i + 1] + '</li>');
+                    (breaks[i]).toLocaleString() + ' &mdash; ' + 
+                    (breaks[i + 1]).toLocaleString() + '</li>');
         
             }
             
@@ -412,17 +408,17 @@
                     "2000: <b>"+ props["2000"]+"</b><br>"+
                     "2001: <b>"+ props["2001"]+"</b><br>"+
                     "2002: <b>"+ props["2002"]+"</b><br>"+
-                    "2003: <b>"+ props["2002"]+"</b><br>"+
-                    "2004: <b>"+ props["2002"]+"</b><br>"+
-                    "2005: <b>"+ props["2002"]+"</b><br>"+
-                    "2006: <b>"+ props["2002"]+"</b><br>"+
-                    "2007: <b>"+ props["2002"]+"</b><br>"+
-                    "2008: <b>"+ props["2002"]+"</b><br>"+
-                    "2009: <b>"+ props["2002"]+"</b><br>"+
-                    "2010: <b>"+ props["2002"]+"</b><br>"+
-                    "2011: <b>"+ props["2002"]+"</b><br>"+
-                    "2012: <b>"+ props["2002"]+"</b><br>"+
-                    "2013: <b>"+ props["2002"]+"</b><br>"
+                    "2003: <b>"+ props["2003"]+"</b><br>"+
+                    "2004: <b>"+ props["2004"]+"</b><br>"+
+                    "2005: <b>"+ props["2005"]+"</b><br>"+
+                    "2006: <b>"+ props["2006"]+"</b><br>"+
+                    "2007: <b>"+ props["2007"]+"</b><br>"+
+                    "2008: <b>"+ props["2008"]+"</b><br>"+
+                    "2009: <b>"+ props["2009"]+"</b><br>"+
+                    "2010: <b>"+ props["2010"]+"</b><br>"+
+                    "2011: <b>"+ props["2011"]+"</b><br>"+
+                    "2012: <b>"+ props["2012"]+"</b><br>"+
+                    "2013: <b>"+ props["2012"]+"</b><br>"
 
             $(".info").html(html);
             
