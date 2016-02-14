@@ -260,12 +260,17 @@
                     });
                 
                 });
-                
-            });
+                layer.bindPopup("<b>"+layer.feature.properties["NAME"]+" County</b></br>" +
+                                [attribute] + ": " +
+                                ((layer.feature.properties[attribute])).toLocaleString()); 
+        
+                updateLegend(breaks);
             
-            updateLegend(breaks);              
+            });  
             
         }
+            
+    
         
         function getColor(attribute, breaks) {
             
