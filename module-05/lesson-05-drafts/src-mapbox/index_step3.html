@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8 />
+    <title>A simple map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js'></script>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js'></script>
+
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css' rel='stylesheet' />
+    <link href='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.css' rel='stylesheet' />
+    <link href='https://fonts.googleapis.com/css?family=Work+Sans:400,500,600' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin:0;
+            padding:0;
+            background: whitesmoke;
+            font-family: "Work Sans", sans-serif;
+        }
+        #map {
+            position:absolute;
+            top:0;
+            bottom:0;
+            right: 0;
+            width: 64%;
+            border-left: 3px solid #d3d3d3;
+        }
+        #side-panel {
+            width: 36%;
+        }
+        #ui-slider {
+            width: 250px;
+            padding: 8px 15px 4px;
+            margin: 0;
+            background: #1C9976;
+            border-radius: 3px;
+            color: whitesmoke;
+            position: absolute;
+            left: 37%;
+            bottom: 10px;
+        }
+        .slider {
+            width: 100%;
+        }
+        #grade {
+            padding: 6px 15px 8px;
+            background: whitesmoke;
+            border: 2px solid #1C9976;
+            border-radius: 3px;
+            color: #1C9976;
+            position: absolute;
+            left: 37%;
+            bottom: 55px;
+            font-size: 1em;
+        }
+        #grade span {
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div id='map'></div>
+    <div id="ui-slider">
+        <input type="range" min="1", max="12",
+                value="1", step="1" class="slider">
+    </div>
+    <div id="grade">Grade: <span></span></div>
+      
+
+    <div id='side-panel'></div>
+
+    <script src='https://code.jquery.com/jquery-1.12.0.min.js'></script>
+    <script>
+        L.mapbox.accessToken = 'pk.eyJ1Ijoicmdkb25vaHVlIiwiYSI6Im5Ua3F4UzgifQ.PClcVzU5OUj17kuxqsY_Dg';
+
+        var map = L.mapbox.map('map', 'mapbox.light', {
+            center: [-.23, 37.8],
+            zoom: 7,
+            minZoom: 6,
+            maxZoom: 9,
+            maxBounds: L.latLngBounds([-6.22, 27.72],[5.76, 47.83])
+        });
+
+        var boys, girls, currentGrade = 1; // define as global
+
+        omnivore.csv('kenya_education_2014.csv')
+            .on('ready', function(e) {
+                drawMap(e.target.toGeoJSON());
+            })
+            .on('error', function(e) {
+                console.log(e.error[0].message);
+        });
+
+        function drawMap(schoolData) {
+
+          //  centroidLayer = null;
+
+            girls = L.geoJson(schoolData, {
+
+               pointToLayer: function(feature, layer){
+                   return L.circleMarker(layer, {
+                       color: '#D96D02',
+                       opacity: 1,
+                       weight: 2,
+                       fillColor: 'red',
+                       fillOpacity: 0
+                   });
+               }
+           }).addTo(map);
+
+           boys = L.geoJson(schoolData, {
+
+               pointToLayer: function(feature, layer){
+
+                   return L.circleMarker(layer, {
+                       color: '#6E77B0',
+                       opacity: 1,
+                       weight: 2,
+                       fillColor: '#1C9976',
+                       fillOpacity: 0
+
+                   });
+               }
+
+           }).addTo(map);
+
+           updateSymbols();
+           sequenceUI();
+
+        } // end drawMap
+
+        function updateSymbols() {
+
+            girls.eachLayer(function(layer) {
+                layer.setRadius(calcRadius(Number(layer.feature.properties['G'+String(currentGrade)])));
+            });
+
+            boys.eachLayer(function(layer) {
+                layer.setRadius(calcRadius(Number(layer.feature.properties['B'+String(currentGrade)])));
+            });
+
+        }
+
+        function sequenceUI() {
+
+          $('.slider')
+             .on('input change', function() {
+                  var val = $(this).val();
+                  currentGrade = val;
+                  updateSymbols(val);
+                  $('#grade span').html(String(val));
+              });
+        }
+
+        function calcRadius(val) {
+
+            var radius = Math.sqrt(val/Math.PI);
+            console.log(radius);
+            return radius * .6;
+
+        }
+
+    </script>
+</body>
+</html>

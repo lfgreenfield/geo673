@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset=utf-8 />
+    <title>A simple map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.js'></script>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.2.0/leaflet-omnivore.min.js'></script>
+    <script src='https://code.jquery.com/jquery-1.12.0.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.1/simple_statistics.min.js'></script>
+
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css' rel='stylesheet' />
+    <link href='https://api.mapbox.com/mapbox.js/v2.2.4/mapbox.css' rel='stylesheet' />
+    <link href='https://fonts.googleapis.com/css?family=Work+Sans:400,500,600' rel='stylesheet' type='text/css'>
+
+    <style>
+        body {
+            margin:0;
+            padding:0;
+            background: whitesmoke;
+            font-family: "Work Sans", sans-serif;
+        }
+        #map {
+            position:absolute;
+            top:0;
+            bottom:0;
+            right: 0;
+            width: 64%;
+            border-left: 3px solid #1C9976;
+        }
+        #side-panel {
+              width: 36%;
+        }
+        .ui-slider {
+            padding: 8px 15px 4px;
+            margin: 0;
+            background: #1C9976;
+            border-radius: 3px;
+            color: whitesmoke;
+            position: absolute;
+        }
+        .slider {
+            width: 100%;
+        }
+        .grades-slider {
+          width: 250px;
+          left: 37%;
+          bottom: 10px;
+        }
+        .scale-factor-slider {
+          width: 150px;
+          right: 15px;
+          bottom: 10px;
+        }
+        #grade {
+            padding: 6px 15px 8px;
+            background: whitesmoke;
+            border: 2px solid #1C9976;
+            border-radius: 3px;
+            color: #1C9976;
+            position: absolute;
+            left: 37%;
+            bottom: 55px;
+            font-size: 1em;
+        }
+        #grade span {
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+        #legend {
+/*
+          width: 200px;
+          height: 200px;
+*/
+          position: absolute;
+          right: 0;
+          bottom: 30px;
+/*          background: #1C9976;*/
+        }
+    </style>
+</head>
+<body>
+    <div id='map'></div>
+    <div class="ui-slider grades-slider">
+        <input type="range" min="1", max="12",
+                value="1", step="1" class="slider">
+    </div>
+    <div id="grade">Grade: <span></span></div>
+    <div class="ui-slider scale-factor-slider">
+        <input type="range" min=".1", max="1",
+                value=".6", step=".1" class="slider">
+    </div>
+    <div id="legend">
+        <svg class="legend" width="200" height="200"></svg>
+    </div>
+
+    <div id='side-panel'></div>
+
+
+    <script>
+        L.mapbox.accessToken = 'pk.eyJ1Ijoicmdkb25vaHVlIiwiYSI6Im5Ua3F4UzgifQ.PClcVzU5OUj17kuxqsY_Dg';
+
+        var map = L.mapbox.map('map', 'mapbox.light', {
+            center: [-.23, 37.8],
+            zoom: 6,
+            minZoom: 6,
+            maxZoom: 9,
+            maxBounds: L.latLngBounds([-6.22, 27.72],[5.76, 47.83])
+        });
+
+        var boys, girls,  // define globals
+            currentGrade = 1,
+            scaleFactor = .6;
+
+        omnivore.csv('kenya_education_2014.csv')
+            .on('ready', function(e) {
+                drawMap(e.target.toGeoJSON());
+            })
+            .on('error', function(e) {
+                console.log(e.error[0].message);
+        });
+
+        function drawMap(schoolData) {
+
+          //  centroidLayer = null;
+
+            girls = L.geoJson(schoolData, {
+
+               pointToLayer: function(feature, layer){
+                   return L.circleMarker(layer, {
+                       color: '#D96D02',
+                       opacity: 1,
+                       weight: 2,
+                       fillColor: 'red',
+                       fillOpacity: 0
+                   });
+               }
+           }).addTo(map);
+
+           boys = L.geoJson(schoolData, {
+
+               pointToLayer: function(feature, layer){
+
+                   return L.circleMarker(layer, {
+                       color: '#6E77B0',
+                       opacity: 1,
+                       weight: 2,
+                       fillColor: '#1C9976',
+                       fillOpacity: 0
+
+                   });
+               }
+
+           }).addTo(map);
+
+           updateSymbols();
+           sequenceUI();
+           scaleFactorUI();
+
+        } // end drawMap
+
+        function updateSymbols() {
+            
+            var radius,
+                allRadii = [];
+            
+            girls.eachLayer(function(layer) {
+                radius = calcRadius(Number(layer.feature.properties['G'+String(currentGrade)]));
+                layer.setRadius(radius);
+                allRadii.push(radius);
+            });
+
+            boys.eachLayer(function(layer) {
+                radius = calcRadius(Number(layer.feature.properties['B'+String(currentGrade)]));
+                layer.setRadius(radius);
+                allRadii.push(radius);
+            });
+            
+            drawLegend(allRadii);
+
+        }
+
+        function sequenceUI() {
+
+          $('.grades-slider > .slider')
+             .on('input change', function() {
+                  var val = $(this).val();
+                  currentGrade = val;
+                  updateSymbols(val);
+                  $('#grade span').html(String(val));
+              });
+        }
+        function scaleFactorUI() {
+
+          $('.scale-factor-slider > .slider')
+             .on('input change', function() {
+                  scaleFactor = $(this).val();
+                  updateSymbols(currentGrade);
+              });
+
+        }
+
+        function calcRadius(val) {
+
+            var radius = Math.sqrt(val/Math.PI);
+
+            return radius * scaleFactor;
+
+        }
+        
+        function drawLegend(allRadii) {
+            
+            var legend = $('.legend');
+
+            var circles = {
+                max: ss.max(allRadii),
+                median: ss.median(allRadii),
+                min: ss.min(allRadii)
+            }
+
+            var svgCircles = '';
+            
+            var reverseCalc = function(radius) {
+                
+                return Math.round((Math.pow(radius/scaleFactor, 2) * Math.PI));
+
+            }
+            
+            for (var circle in circles) {
+                
+                console.log(circles.max - circles[circle]);
+                
+                svgCircles += '<circle cx="'+ 100 +'" cy="'+ (circles[circle] - 180) * -1 +'" r="'+ circles[circle] +'" stroke="#d3d3d3" stroke-width="1" fill="ghostwhite" />';
+                
+              svgCircles += '<text x="'+ 80 +'" y = "'+ (circles[circle] - 160) * -1 +'" fill= "green">'+ reverseCalc(circles[circle]) +'</text>'
+            }
+            
+            legend.html(svgCircles)
+            
+        }
+
+
+    </script>
+</body>
+</html>
