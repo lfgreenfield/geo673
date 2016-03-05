@@ -118,12 +118,12 @@
     function updateSymbols() {
         
         girls.eachLayer(function(layer){
-            layer.setRadius(calcRadius(Number(layer.feature.properties.['G'+String(currentGrade)])));
+            layer.setRadius(calcRadius(Number(layer.feature.properties['G'+String(currentGrade)])));
         });
 //        why have to have layer.feature.properties here instead of just feature.properties, like where it was originally within L.geoJson function
         
         boys.eachLayer(function(layer){
-            layer.setRadius(calcRadius(Number(layer.feature.properties.['B'+String(currentGrade))));
+            layer.setRadius(calcRadius(Number(layer.feature.properties['B'+String(currentGrade)])));
         });
     }
     
