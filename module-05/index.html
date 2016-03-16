@@ -17,26 +17,31 @@
           background: whitesmoke;
           font-family: "Work Sans", sans-serif; 
         }
+         #side-panel {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 33%;
+            background:green;
+        }
         #map { 
           position:absolute; 
           top:0; 
           bottom:0; 
           right: 0;
-          width: 64%; 
+          width: 67%; 
           border-left: 3px solid #d3d3d3;
-        }
-        #side-panel {
-            width: 36%;
         }
         #ui-slider {
             position: absolute;
-            top: 20px;
-            left: 60px;
+            bottom: 20px;
+            left: 36%;
         }
         #grade {
             position: absolute;
-            left: 60px;
-            top: 50px;
+            left: 36%;
+            bottom: 60px;
             padding: 6px 15px 8px;
             background: whitesmoke;
             border: 2px solid #d3d3d3;
@@ -44,19 +49,56 @@
         #grade span {
         /* future style rules here*/
         }
+        #legend {
+            position: absolute;
+            right: 0;
+            bottom: 30px;
+        }
+        #info {
+            position: absolute; 
+            max-width: 200px;
+            right: 15px;
+            top: 15px;
+            display: none;
+            background: whitesmoke;
+            border: 2px solid #d3d3d3;
+            padding: 2px 6px;
+        }
+
+        #info p {
+            margin: 3px 0 4px;
+        }
+       
     </style>
 
 </head>
         
 <body>
 
+<div id='side-panel'></div>
 <div id='map'></div>
+    
 <div id="ui-slider">
      <input type="range" min="1", max="8", value="1", step="1" class="slider">
 </div>
+    
 <div id="grade">Grade: <span>1</span></div>
     
-<script src='https://code.jquery.com/jquery-1.12.0.min.js'></script>    
+<div id="legend">
+    <h3>2014 enrollments per county</h3>
+    <svg class="legend" width="200" height="200"></svg>
+</div>
+    
+<div id="info">
+    <p>County: <span></span></p>
+    <p class="girls">girls <span></span>: <span></span></p>
+    <p class="boys">boys <span></span>: <span></span></p>
+</div>
+
+    
+<script src='https://code.jquery.com/jquery-1.12.0.min.js'></script> 
+<script src='https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.1/simple_statistics.min.js'></script>
+    
 <script>
     
     L.mapbox.accessToken = 'pk.eyJ1IjoibGZncmVlbmZpZWxkIiwiYSI6IjJTQWFaakEifQ.n0qIzdB2sQ4MymItf7vCWA';
@@ -69,9 +111,10 @@
         maxBounds: L.latLngBounds([-6.22, 27.72],[5.76, 47.83])
     });
     
-    var currentGrade = 1
-    var girls,
-        boys
+    var currentGrade = 1,
+        girls,
+        boys,
+        scaleFactor = .6;
     
    omnivore.csv('kenya_data.csv')
         .on('ready', function(e) {
@@ -80,7 +123,6 @@
         .on('error', function(e) {
             console.log(e.error[0].message);
         })
-//   .addTo(map);
     
     function drawMap(schoolData) {
         girls = L.geoJson(schoolData, {
@@ -105,31 +147,42 @@
             }
         }).addTo(map);
         
-        updateSymbols(girls, boys);
-        //sends the same geoJSON twice?
+        updateSymbols();
+        sequenceUI();
+        infoWindow();
         
     }
     
     function calcRadius(val) {
         var radius = Math.sqrt(val/Math.PI);
-        return radius * .6;
+        return radius * scaleFactor;
     }
     
     function updateSymbols() {
         
+        var radius,  //variable to hold each radius
+            allRadii = []; //empty array to hold all values
+        
         girls.eachLayer(function(layer){
-            layer.setRadius(calcRadius(Number(layer.feature.properties['G'+String(currentGrade)])));
+            //store a reference to the radius value
+            radius = calcRadius(Number(layer.feature.properties['G'+String(currentGrade)]));
+            //use it to set the radius of the layer
+            layer.setRadius(radius);
+            //push into "radius" array
+            allRadii.push(radius);
         });
-//        why have to have layer.feature.properties here instead of just feature.properties, like where it was originally within L.geoJson function
         
         boys.eachLayer(function(layer){
-            layer.setRadius(calcRadius(Number(layer.feature.properties['B'+String(currentGrade)])));
+            radius = calcRadius(Number(layer.feature.properties['B'+String(currentGrade)]));
+            layer.setRadius(radius);
+            allRadii.push(radius);
         });
+        
+        drawLegend(allRadii);
+        
     }
     
     function sequenceUI() {
-        
-        console.log("here");
         
         var output = $('#grade span');
         
@@ -140,6 +193,72 @@
                 output.html(currentGrade);
             });
         
+    }
+    
+    function drawLegend(allRadii) {
+        
+        var legend = $('.legend');
+
+        var circles = {
+            max: ss.max(allRadii),
+            median: ss.median(allRadii),
+            min: ss.min(allRadii)
+        }
+
+        var svgCircles = '';
+
+        var reverseCalc = function(radius) {
+            return Math.round((Math.pow(radius/scaleFactor, 2) * Math.PI));
+        }
+
+        for (var circle in circles) {
+
+            svgCircles += '<circle cx="'+ 100 +'" cy="'+ (circles[circle] - 180) * -1 +'" r="'+ circles[circle] +'" stroke="#d3d3d3" stroke-width="1" fill="ghostwhite" />';
+
+            svgCircles += '<text x="'+ 80 +'" y = "'+ (circles[circle] - 160) * -1 +'" fill= "green">'+ reverseCalc(circles[circle]) +'</text>'
+        }
+
+        legend.html(svgCircles)
+
+    }
+    
+    function infoWindow() {
+        
+         var info = $('#info');
+
+        boys.on('mouseover', function(e) {
+            var props = e.layer.feature.properties;
+               info.show();
+                $('#info span').text(props.COUNTY);
+                $(".girls span:first-child").text('(grade '+String(currentGrade)+')');
+                $(".boys span:first-child").text('(grade '+String(currentGrade)+')');
+
+                $(".girls span:last-child").text(props['G'+String(currentGrade)].toLocaleString());
+                $(".boys span:last-child").text(props['B'+String(currentGrade)].toLocaleString());
+
+                e.layer.setStyle({ fillOpacity: .6 });
+
+        });
+
+        boys.on('mouseout', function(e) {
+            info.hide();
+            e.layer.setStyle({ fillOpacity: 0 });
+    });
+        
+         $(document).mousemove(function(e){
+    // first offset from the mouse position of the info window
+    info.css({"left": e.pageX + 6, "top": e.pageY - info.height() - 15}); 
+
+    // if it crashes into the top, flip it lower right
+    if(info.offset().top < 4) {
+        info.css({"top": e.pageY + 15});
+    }
+    // do the same for crashing into the right
+    if(info.offset().left + info.width() >= $(document).width() - 40) {
+        info.css({"left": e.pageX - info.width() - 30});
+    }
+});
+    
     }
     
      
